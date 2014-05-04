@@ -28,9 +28,12 @@ const uint8_t radio_cspin = 10; // Pin attached to Chip Select on RF module
 const int radioChannel = 100;  // The radio channel to use
 #define serialSpeed 57600 // The serial port speed
 
-// Nodes to expect certain chime types from.
+// button Nodes to expect certain chime types from.
 const uint16_t chime_1_node = 01;
 const uint16_t chime_2_node = 02;
+
+const uint8_t chime_1_pin = 2;
+const uint8_t chime_2_pin = 4;
 
 // nRF24L01(+) radio using the Getting Started board
 RF24 radio(radio_cepin, radio_cspin);
@@ -47,7 +50,7 @@ void setup() {
 
   Serial.begin(serialSpeed);
   printf_begin();
-  printf_P(PSTR("\r\nDoorBell Button Node\r\n"));
+  printf_P(PSTR("\r\nDoorBell Chime Node\r\n"));
   printf_P(PSTR("VERSION: " __TAG__ "\r\n"));
   printf_P(PSTR("Send 'HELP' via serial to get a list of available commands\r\n"));
   
@@ -73,6 +76,13 @@ void setup() {
   SPI.begin();
   radio.begin();
   network.begin(radioChannel, /*node address*/ this_node);
+  
+  // Setup Chime pin relays
+  pinMode(chime_1_pin, OUTPUT);
+  pinMode(chime_2_pin, OUTPUT);
+  
+  digitalWrite(chime_1_pin, LOW);
+  digitalWrite(chime_2_pin, LOW);
 }
 
 void loop(void)
@@ -126,12 +136,16 @@ void handleButtonPress() {
   switch (header.from_node) {
     case chime_1_node:
       printf_P(PSTR("Ring chime 1\r\n"));
-      // Add code to ring the chime here
+      digitalWrite(chime_1_pin, HIGH);
+      delay(500);
+      digitalWrite(chime_1_pin, LOW);
       break;
       
     case chime_2_node:
       printf_P(PSTR("Ring chime 2\r\n"));
-      // Add code to ring the chime here
+      digitalWrite(chime_2_pin, HIGH);
+      delay(500);
+      digitalWrite(chime_2_pin, LOW);
       break;
       
     default:
