@@ -28,12 +28,17 @@ const uint8_t radio_cspin = 10; // Pin attached to Chip Select on RF module
 const int radioChannel = 100;  // The radio channel to use
 #define serialSpeed 57600 // The serial port speed
 
+// Nodes to expect certain chime types from.
+const uint16_t chime_1_node = 01;
+const uint16_t chime_2_node = 02;
+
 // nRF24L01(+) radio using the Getting Started board
 RF24 radio(radio_cepin, radio_cspin);
 RF24Network network(radio);
 
 // Our node address
 uint16_t this_node;
+
 
 void setup() {
   //
@@ -82,36 +87,66 @@ void loop(void)
 void checkNetwork() {
   // Is there anything ready for us?
   while (network.available()) {
-    printf_P(PSTR("Received network message..."));
+    printf_P(PSTR("Received network message...\r\n"));
     // If so, grab it and print it out.
     RF24NetworkHeader header;
     // Check what type of message it is.
     network.peek(header);
+    printf_P(PSTR("Header details: \r\n%s\r\n"), header.toString());
+    printf_P(PSTR("Message Type: %i \r\n"), header.type);
     switch (header.type) {
       case TYPE_ECHO:
-        handleEcho(header);
+        handleEcho();
         break;
         
       case TYPE_BUTTON_PRESS:
-        handleButtonPress(header);
+        handleButtonPress();
         break;
         
       default:
-        unhandledMessageType(header);
+        unhandledMessageType();
         break;
     }
   }
 }
 
-void handleEcho(RF24NetworkHeader& header) {
+void handleEcho() {
+  RF24NetworkHeader header;
+  payload_echo payload;
+  network.read(header, &payload, sizeof(payload));
   // TODO: Stub, finish function
 }
 
-void handleButtonPress(RF24NetworkHeader& header) {
+void handleButtonPress() {
+  RF24NetworkHeader header;
+  payload_button_press payload;
+  network.read(header, &payload, sizeof(payload));
+  printf_P(PSTR("Recieved button press message from node: %i\r\n"), header.from_node);
+  
+  switch (header.from_node) {
+    case chime_1_node:
+      printf_P(PSTR("Ring chime 1\r\n"));
+      // Add code to ring the chime here
+      break;
+      
+    case chime_2_node:
+      printf_P(PSTR("Ring chime 2\r\n"));
+      // Add code to ring the chime here
+      break;
+      
+    default:
+      printf_P(PSTR("Unhandled button node %i\r\n"), header.from_node);
+      // What do we do here?
+      break;
+      
+  }
   
 }
 
-void unhandledMessageType(RF24NetworkHeader& header) {
+void unhandledMessageType() {
+  RF24NetworkHeader header;
+  char payload[255];
+  network.read(header, &payload, 255);
   printf_P(PSTR("Unhandled message type: %i\r\n"), header.type);
-  printf_P(PSTR("Header details: \r\n%s\r\n"), header.toString());
+  printf_P(PSTR("First 255 chars of payload: \r\n%s\r\n"), payload);
 }
