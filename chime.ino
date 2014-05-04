@@ -35,6 +35,9 @@ const uint16_t chime_2_node = 02;
 const uint8_t chime_1_pin = 2;
 const uint8_t chime_2_pin = 4;
 
+const uint16_t chime_1_delay = 100; // Single chime, only needs to be long enough to allow striker to hit bar
+const uint16_t chime_2_delay = 500; // Two chimes, need longer time before release as a chime occurs on both start and release
+
 // nRF24L01(+) radio using the Getting Started board
 RF24 radio(radio_cepin, radio_cspin);
 RF24Network network(radio);
@@ -137,14 +140,16 @@ void handleButtonPress() {
     case chime_1_node:
       printf_P(PSTR("Ring chime 1\r\n"));
       digitalWrite(chime_1_pin, HIGH);
-      delay(500);
+      // Short delay as it's a single chime
+      delay(chime_1_delay);
       digitalWrite(chime_1_pin, LOW);
       break;
       
     case chime_2_node:
       printf_P(PSTR("Ring chime 2\r\n"));
       digitalWrite(chime_2_pin, HIGH);
-      delay(500);
+      // Longer delay as it's a 2-step
+      delay(chime_2_delay);
       digitalWrite(chime_2_pin, LOW);
       break;
       
