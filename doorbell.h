@@ -12,11 +12,11 @@
 // Setup payload structors
 struct payload_echo {
   char * text;
-}
+};
 
 struct payload_button_press {
   
-}
+};
 
 void checkSerial();
 void showHelpInfo();
