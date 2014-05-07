@@ -7,9 +7,9 @@
 #include <Sync.h>
 #include <SPI.h>
 
-#include "nodeconfig.h"
-#include "printf.h"
-#include "doorbell.h"
+#include <nodeconfig.h>
+#include <printf.h>
+#include <doorbell.h>
 
 /*
  DoorBell Chime
